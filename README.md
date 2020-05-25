@@ -1,33 +1,64 @@
-# NordVPN-Status
-A Gnome extension that allows the user to monitor and control the status of the NordVPN connection in the top bar.
+# Unofficial ProtonVPN Status
 
-Source: https://github.com/bajcmartinez/nordvpn-status
+<div style="text-align:center"><img src="assets/readme-banner.png" /></div>
 
-## What it does
-When connected to a NordVPN a `VPN` icon indicator will be display in the system status indicator area.
+![GitHub top language](https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status) ![GitHub](https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status)
 
-|         VPN OFF                |         VPN ON                |      VPN Details       |
-:-------------------------:|:-------------------------:|:-------------------------:
-|![vpn off](./assets/vpn-off.png)|![vpn on](./assets/vpn-on.png)|    ![vpn details](./assets/vpn-details.png) |
+A Gnome extension for controlling and monitoring your ProtonVPN connection through the Gnome DE.
 
-## What it does
-When disconnected, the top bar will show a red button reading `UNPROTECTED`, to remind you that you are not connected to the VPN. When connecting or disconnecting the button turns amber, and once connected it will turn green showing you the country and server number you are connected to, e.g. `UNITED KINGDOM #813`. When you click the button it will show the full command-line output of the command `nordvpn status` in the menu. Undearneath the status is a button that allows you to connect / disconnect.
+## **IMPORTANT FOR THIS EXTENSION TO WORK**
 
-## How to Install
-This extension uses the NordVPN command line client, which can be set up as follows.
+[**You need to follow this official guide by the ProtonVPN team inorder to allow this extension to handle the ProtonVPN linux-cli client without superuser privilages.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
-### Install NordVPN
-1. Install NordVPN with `sudo apt install nordvpn`.
-2. Configure your credentials with `nordvpn login`, following the prompts.
-3. Check NordVPN is set up with `nordvpn c`, if it connects successfully then you're good to go.
+## How to Install This Extension
 
-### Install the extension
-Easiest way: enable on gnome-extensions at [NordVPN Status on gnome extensions](https://extensions.gnome.org/extension/1879/nordvpn-status/)
+This extension uses the ProtonVPN linux-cli tool. You will need to install it before using this extension.
 
-Manual install:  
-1. Create a folder for the extension with `mkdir ~/.local/share/gnome-shell/extensions/nordvpn_status@jcmartinez.dev/`
-2. Copy the files from this repo into that folder
-3. Enable the extension using `Tweaks` (if you don't have it, install via `sudo apt install gnome-tweaks`)
+Please follow ProtonVPN's installation guide for your current distribution:
+<https://protonvpn.com/support/linux-vpn-tool/>
+
+Once you've done that, install and enable the extension on Gnome Extensions:
+
+[<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
+
+[ego]: x
+
+## What This Extension Offers
+
+If you want to interact with ProtonVPN the same way the network-manager handles OpenVPN, this is the extension for you.
+
+![screenshot preview](assets/preview.png)
+
+This extension offers a drop-down item in the user menu which will simply allow you to connect/disconnect from ProtonVPN. You will be notified when the extension starts connecting or disconnecting using the ProtonVPN linux-cli client.
+
+### Planned Features
+
+|Additional Features|Feature Implemented|
+|:-----|:-----:|
+|Add notification to indicate connection status|![Done](assets/done.png)|
+|Add server details to notification||
+|Offer GUI for changing ProtonVPN linux-cli client settings||
+|Change VPN notification icon to ProtonVPN mark||
+
+### Compatibility
+
+This extension has been tested with Gnome 3.36.
+
+### Credits
+
+This extension is developed and maintained by @ceiphr.
+
+Significant portion of code in this extension were derived from @bajcmartinez's [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
+
+The ProtonVPN logo and sign are both registered trademarks of Proton Technologies AG.
+
+[Checkmark icon](https://icons8.com/icons/set/checkmark) by [Icons8](https://icons8.com).
+
+### License & Terms 
+ProtonVPN Status is available under the [GNU GENERAL PUBLIC LICENSE v3.0](LICENSE).
 
 ### Disclaimer
-NordVPN-Status is not an official extension, it's built by me, for my personal use and for those who want to enjoy it!
+
+ProtonVPN is a product of Proton Technologies AG. I, Ari Birnbaum (Ceiphr), am in no way affiliated with ProtonVPN, the ProtonVPN team, or Proton Technologies AG. Please determine if your issue pertains to this extension or to ProtonVPN's linux-cli client before reporting it.
+
+Thank you for using the extension. I really appreciate it.

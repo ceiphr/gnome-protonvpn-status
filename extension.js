@@ -1,232 +1,191 @@
-// Includes;
-const { St, Clutter } = imports.gi;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const GLib = imports.gi.GLib;
+const { St, Clutter, GLib, GObject } = imports.gi;
+const { panelMenu, popupMenu, main } = imports.ui;
+const AggregateMenu = main.panel.statusArea.aggregateMenu;
 const Lang = imports.lang;
-const Main = imports.ui.main;
-const Mainloop  = imports.mainloop;
-const AggregateMenu = Main.panel.statusArea.aggregateMenu;
-const GObject = imports.gi.GObject
+const Mainloop = imports.mainloop;
 
 let vpnStatusIndicator;
 
-class NordVPN {
-    constructor()
-    {
-        this._commands = {
-            connect: 'nordvpn c',
-            disconnect: 'nordvpn d',
-            status: 'nordvpn status'
-        };
+class ProtonVPN {
+	constructor() {
+		this._commands = {
+			connect: "sudo protonvpn connect -f",
+			disconnect: "sudo protonvpn disconnect",
+			status: "protonvpn status",
+		};
+	}
 
-        this._states = {
-            CONNECTED: 'CONNECTED'
-        };
-    }
+	/**
+	 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+	 */
+	connect() {
+		GLib.spawn_command_line_async(this._commands.connect);
+		GLib.spawn_command_line_async(
+			"notify-send ProtonVPN Connecting... -i network-vpn-symbolic"
+		);
+	}
 
-    /**
-     * Call NordVPN Command Line Tool to connect to the VPN Service
-     */
-    connect() {
-        GLib.spawn_command_line_async(this._commands.connect);
-    }
+	/**
+	 * Call ProtonVPN Command Line Tool to disconnect to the VPN Service
+	 */
+	disconnect() {
+		GLib.spawn_command_line_async(this._commands.disconnect);
+		GLib.spawn_command_line_async(
+			"notify-send ProtonVPN Disconnecting... -i network-vpn-symbolic"
+		);
+	}
 
-    /**
-     * Call NordVPN Command Line Tool to disconnect to the VPN Service
-     */
-    disconnect() {
-        GLib.spawn_command_line_async(this._commands.disconnect);
-    }
+	/**
+	 * Call ProtonVPN Command Line Tool to get the status of the VPN connection
+	 *
+	 * @returns {status: string}
+	 */
+	getStatus() {
+		const data = GLib.spawn_command_line_sync(this._commands.status)[1];
 
-    /**
-     * Call NordVPN Command Line Tool to get the status of the VPN connection
-     *
-     * @returns {{connected: boolean, country: string, city: string, fullStatus: string, serverNumber: number, status: string}|{connected: boolean, fullStatus: string, status: string}}
-     */
-    getStatus() {
-        const data = (GLib.spawn_command_line_sync(this._commands.status)[1]);
-        let fullStatus;
-        if (data instanceof Uint8Array) {
-            fullStatus = imports.byteArray.toString(data).trim();
-        } else {
-            fullStatus = data.toString().trim();
-        }
-        const result = fullStatus.split('\n');
-        const statusLine = result.find((line) => line.includes("Status:"));
-        const status = statusLine ? statusLine.replace("Status:", "").trim() : "Unknown";
+		let rawStatus = data.toString().trim();
 
-        if (status.toUpperCase() === this._states.CONNECTED) {
-            const serverNumberLine = result.find((line) => line.includes("server:"));
-            const countryLine = result.find((line) => line.includes("Country:"));
-            const cityLine = result.find((line) => line.includes("City:"));
+		const splitStatus = rawStatus.split("\n");
+		const connectionLine = splitStatus.find((line) =>
+			line.includes("Status:")
+		);
+		const status = connectionLine
+			? connectionLine.replace("Status:", "").trim()
+			: "Loading...";
 
-            const serverNumber = serverNumberLine ? serverNumberLine.match(/\d+/) :  "Unknown";
-            const country = countryLine ? countryLine.replace("Country:", "").trim() :  "Unknown";
-            const city = cityLine ? cityLine.replace("City:", "").trim() :  "Unknown";
-
-            return {
-                connected: true,
-                status,
-                serverNumber,
-                country,
-                city,
-                fullStatus
-            }
-        } else {
-            return {
-                connected: false,
-                status: status,
-                fullStatus
-            }
-        }
-    }
+		return status;
+	}
 }
 
 const VPNStatusIndicator = GObject.registerClass(
-    class VPNStatusIndicator extends PanelMenu.SystemIndicator {
-        _init() {
-            super._init();
+	class VPNStatusIndicator extends panelMenu.SystemIndicator {
+		_init() {
+			super._init();
 
-            // Add the indicator to the indicator bar
-            this._indicator = this._addIndicator();
-            this._indicator.icon_name = 'network-vpn-symbolic';
-            this._indicator.visible = false;
+			// Add the indicator to the indicator bar
+			this._indicator = this._addIndicator();
+			this._indicator.icon_name = "network-vpn-symbolic";
+			this._indicator.visible = false;
 
-            // Build a menu
+			// Build a menu
 
-            // Main item with the header section
-            this._item = new PopupMenu.PopupSubMenuMenuItem('NordVPN', true);
-            this._item.icon.icon_name = 'network-vpn-symbolic';
-            this._item.label.clutter_text.x_expand = true;
-            this.menu.addMenuItem(this._item);
+			// main item with the header section
+			this._item = new popupMenu.PopupSubMenuMenuItem("ProtonVPN", true);
+			this._item.icon.icon_name = "network-vpn-symbolic";
+			this._item.label.clutter_text.x_expand = true;
+			this.menu.addMenuItem(this._item);
 
-            // Content Inside the box
-            this._item.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-            this._connectionDetails = new PopupMenu.PopupMenuItem("");
-            this._item.menu.addMenuItem(this._connectionDetails);
+			// Initiate ProtonVPN handler
+			this.pvpn = new ProtonVPN();
 
-            // Initiate NordVPN handler
-            this.vpnHandler = new NordVPN();
+			// Add elements to the UI
+			AggregateMenu._indicators.insert_child_at_index(this.indicators, 0);
+			AggregateMenu.menu.addMenuItem(this.menu, 4);
+		}
 
-            // Add elements to the UI
-            AggregateMenu._indicators.insert_child_at_index(this.indicators, 0);
-            AggregateMenu.menu.addMenuItem(this.menu, 4);
-        }
+		enable() {
+			this._update(this.pvpn.getStatus());
+			this._refresh();
+		}
 
-        enable() {
-            this.resetTimer();
-            this._refresh();
-        }
+		/**
+		 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+		 *
+		 * @private
+		 */
+		_connect() {
+			this.pvpn.connect();
+		}
 
-        /**
-         * Call NordVPN Command Line Tool to connect to the VPN Service
-         *
-         * @private
-         */
-        _connect() {
-            this.stopTimer();
-            this.vpnHandler.connect();
-            this.resetTimer();
-            this.startTimer();
-        }
+		/**
+		 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+		 *
+		 * @private
+		 */
+		_disconnect() {
+			this.pvpn.disconnect();
+		}
 
-        /**
-         * Call NordVPN Command Line Tool to connect to the VPN Service
-         *
-         * @private
-         */
-        _disconnect() {
-            this.stopTimer();
-            this.vpnHandler.disconnect();
-            this.resetTimer();
-            this.startTimer();
-        }
+		/**
+		 * Call ProtonVPN Command Line Tool to get the current status of the connection
+		 *
+		 * @private
+		 */
+		_refresh() {
+			this._update(this.pvpn.getStatus());
 
-        /**
-         * Call NordVPN Command Line Tool to get the current status of the connection
-         *
-         * @private
-         */
-        _refresh() {
-            this.stopTimer();
-            this._update(this.vpnHandler.getStatus());
-            this.startTimer();
-        }
+			if (this._timeout) {
+				Mainloop.source_remove(this._timeout);
+				this._timeout = null;
+			}
+			// the refresh function will be called every 10 sec.
+			this._timeout = Mainloop.timeout_add_seconds(
+				10,
+				Lang.bind(this, this._refresh)
+			);
+		}
+		/**
+		 * Updates the widgets based on the vpn status
+		 *
+		 * @param vpnStatus
+		 * @private
+		 */
+		_update(vpnStatus) {
+			// Update the panel button
+			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
-        /**
-         * Updates the widgets based on the vpn status
-         *
-         * @param vpnStatus
-         * @private
-         */
-        _update(vpnStatus) {
-            // Update the panel button
-            this._indicator.visible = vpnStatus.connected;
-            this._item.label.text = `NordVPN3 ${vpnStatus.status}`;
+			if (vpnStatus == "Connected") {
+				this._indicator.visible = true;
 
-            if (vpnStatus.connected) {
-                if (!this._disconnectAction)
-                    this._disconnectAction = this._item.menu.addAction('Disconnect', this._disconnect.bind(this));
+				if (!this._disconnectAction)
+					this._disconnectAction = this._item.menu.addAction(
+						"Disconnect",
+						this._disconnect.bind(this)
+					);
 
-                if (this._connectAction) {
-                    this._connectAction.destroy();
-                    this._connectAction = null;
-                }
-            } else {
-                if (!this._connectAction)
-                    this._connectAction = this._item.menu.addAction('Connect', this._connect.bind(this));
+				if (this._connectAction) {
+					this._connectAction.destroy();
+					this._connectAction = null;
+				}
+			} else {
+				this._indicator.visible = false;
 
-                if (this._disconnectAction) {
-                    this._disconnectAction.destroy();
-                    this._disconnectAction = null;
-                }
+				if (!this._connectAction)
+					this._connectAction = this._item.menu.addAction(
+						"Connect",
+						this._connect.bind(this)
+					);
 
-            }
-            this._connectionDetails.label.text = vpnStatus.fullStatus;
-        }
+				if (this._disconnectAction) {
+					this._disconnectAction.destroy();
+					this._disconnectAction = null;
+				}
+			}
+		}
 
-        resetTimer() {
-            this._timerStep = 1;
-        }
-
-        startTimer() {
-            this._timer = Mainloop.timeout_add_seconds(this._timerStep, Lang.bind(this, this._refresh));
-            this._timerStep = this._timerStep * 2;
-            this._timerStep = (this._timerStep > 30) ? 30 : this._timerStep;
-        }
-
-        stopTimer() {
-            if (this._timer) {
-                Mainloop.source_remove(this._timer);
-                this._timer = undefined;
-            }
-        }
-
-        destroy() {
-            this.stopTimer();
-
-            // Call destroy on the parent
-            this.indicators.destroy();
-            this.menu.destroy();
-            if (typeof this.parent === "function") {
-                this.parent();
-            }
-        }
-    }
+		destroy() {
+			// this.stopTimer();
+			if (this._timeout) Mainloop.source_remove(this._timeout);
+			this._timeout = undefined;
+			// Call destroy on the parent
+			this.indicators.destroy();
+			this.menu.destroy();
+			if (typeof this.parent === "function") this.parent();
+		}
+	}
 );
 
-function init() { }
-
+function init() {}
 
 function enable() {
-    // Init the indicator
-    vpnStatusIndicator = new VPNStatusIndicator();
-    vpnStatusIndicator.enable();
+	// Init the indicator
+	vpnStatusIndicator = new VPNStatusIndicator();
+	vpnStatusIndicator.enable();
 }
 
 function disable() {
-    // Remove the indicator from the panel
-    vpnStatusIndicator.destroy();
-    vpnStatusIndicator = null;
+	// Remove the indicator from the panel
+	vpnStatusIndicator.destroy();
+	vpnStatusIndicator = null;
 }
+
