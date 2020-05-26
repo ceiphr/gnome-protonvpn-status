@@ -1,6 +1,6 @@
-# Unofficial ProtonVPN Status
-
 <div style="text-align:center"><img src="assets/readme-banner.png" /></div>
+
+# Unofficial ProtonVPN Status
 
 ![GitHub top language](https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status) ![GitHub](https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status)
 
@@ -19,10 +19,9 @@ Please follow ProtonVPN's installation guide for your current distribution:
 
 Once you've done that, install and enable the extension on Gnome Extensions:
 
-**UNDER REVIEW, PLEASE WAIT.**
-<!-- [<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
+[<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
 
-[ego]: not_released_yet -->
+[ego]: https://extensions.gnome.org/extension/3133/protonvpn-status/
 
 ## What This Extension Offers
 
