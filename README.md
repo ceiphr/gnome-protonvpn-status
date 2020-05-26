@@ -19,9 +19,10 @@ Please follow ProtonVPN's installation guide for your current distribution:
 
 Once you've done that, install and enable the extension on Gnome Extensions:
 
-[<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
+**UNDER REVIEW, PLEASE WAIT.**
+<!-- [<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
 
-[ego]: x
+[ego]: not_released_yet -->
 
 ## What This Extension Offers
 
@@ -35,7 +36,7 @@ This extension offers a drop-down item in the user menu which will simply allow 
 
 |Additional Features|Feature Implemented|
 |:-----|:-----:|
-|Add notification to indicate connection status|![Done](assets/done.png)|
+|Add notification to indicate connection status|<img src="assets/done.png" alt="Done" width="24px"/>|
 |Add server details to notification||
 |Offer GUI for changing ProtonVPN linux-cli client settings||
 |Change VPN notification icon to ProtonVPN mark||
@@ -46,19 +47,19 @@ This extension has been tested with Gnome 3.36.
 
 ### Credits
 
-This extension is developed and maintained by @ceiphr.
+This extension is developed and maintained by [@ceiphr](https://github.com/ceiphr).
 
-Significant portion of code in this extension were derived from @bajcmartinez's [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
+Significant portion of code in this extension were derived from [@bajcmartinez](https://github.com/bajcmartinez)'s [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
 
-The ProtonVPN logo and sign are both registered trademarks of Proton Technologies AG.
+The ProtonVPN logo and mark are both registered trademarks of Proton Technologies AG.
 
-[Checkmark icon](https://icons8.com/icons/set/checkmark) by [Icons8](https://icons8.com).
+[Checkmark icon](https://icons8.com/icons/set/checkmark) using in "Planned Features" by [Icons8](https://icons8.com).
 
 ### License & Terms 
 ProtonVPN Status is available under the [GNU GENERAL PUBLIC LICENSE v3.0](LICENSE).
 
 ### Disclaimer
 
-ProtonVPN is a product of Proton Technologies AG. I, Ari Birnbaum (Ceiphr), am in no way affiliated with ProtonVPN, the ProtonVPN team, or Proton Technologies AG. Please determine if your issue pertains to this extension or to ProtonVPN's linux-cli client before reporting it.
+ProtonVPN is a product of Proton Technologies AG. I, [Ari Birnbaum (Ceiphr)](https://www.ceiphr.com/), am in no way affiliated with ProtonVPN, the ProtonVPN team, or Proton Technologies AG. Please determine if your issue pertains to this extension or to ProtonVPN's linux-cli client before reporting it.
 
 Thank you for using the extension. I really appreciate it.

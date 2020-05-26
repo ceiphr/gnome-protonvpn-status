@@ -84,7 +84,6 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		enable() {
-			this._update(this.pvpn.getStatus());
 			this._refresh();
 		}
 
@@ -164,13 +163,11 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		destroy() {
-			// this.stopTimer();
 			if (this._timeout) Mainloop.source_remove(this._timeout);
 			this._timeout = undefined;
 			// Call destroy on the parent
-			this.indicators.destroy();
-			this.menu.destroy();
-			if (typeof this.parent === "function") this.parent();
+			this._indicator.destroy();
+			this._item.destroy();
 		}
 	}
 );
@@ -188,4 +185,3 @@ function disable() {
 	vpnStatusIndicator.destroy();
 	vpnStatusIndicator = null;
 }
-
