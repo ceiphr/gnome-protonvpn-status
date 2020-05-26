@@ -5,7 +5,34 @@ const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 
 let vpnStatusIndicator;
-let vpnCurrentState;
+
+// https://andyholmes.github.io/articles/subprocesses-in-gjs.html
+function execCommunicate(argv, input = null, cancellable = null) {
+	let flags =
+		Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
+
+	let proc = Gio.Subprocess.new(argv, flags);
+
+	return new Promise((resolve, reject) => {
+		proc.communicate_utf8_async(input, null, (proc, res) => {
+			try {
+				let [, stdout, stderr] = proc.communicate_utf8_finish(res);
+				let status = proc.get_exit_status();
+
+				if (status !== 0) {
+					throw new Gio.IOErrorEnum({
+						code: Gio.io_error_from_errno(status),
+						message: stderr ? stderr.trim() : GLib.strerror(status),
+					});
+				}
+
+				resolve(stdout.trim());
+			} catch (e) {
+				reject(e);
+			}
+		});
+	});
+}
 
 class ProtonVPN {
 	constructor() {
@@ -20,6 +47,7 @@ class ProtonVPN {
 	 */
 	connect() {
 		GLib.spawn_command_line_async(this._commands.connect);
+		vpnStatusIndicator._update("Loading");
 		GLib.spawn_command_line_async(
 			"notify-send ProtonVPN Connecting... -i network-vpn-symbolic"
 		);
@@ -30,6 +58,7 @@ class ProtonVPN {
 	 */
 	disconnect() {
 		GLib.spawn_command_line_async(this._commands.disconnect);
+		vpnStatusIndicator._update("Loading");
 		GLib.spawn_command_line_async(
 			"notify-send ProtonVPN Disconnecting... -i network-vpn-symbolic"
 		);
@@ -42,51 +71,27 @@ class ProtonVPN {
 	 */
 	getStatus() {
 		// const data = GLib.spawn_command_line_sync(this._commands.status)[1];
-		// https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/5d5ca80d179ce424e3cf202f3715004654b089d5/js/ui/components/networkAgent.js#L387
 		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
-		let [
-			success_,
-			pid,
-			stdin,
-			stdout,
-			stderr,
-		] = GLib.spawn_async_with_pipes(
-			null /* pwd */,
-			argv,
-			null /* envp */,
-			GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-			null /* child_setup */
-		);
-
-		if (success_ && pid != 0) {
-			this._childPid = pid;
-			this._stdin = new Gio.UnixOutputStream({
-				fd: stdin,
-				close_fd: true,
-			});
-			this._stdout = new Gio.UnixInputStream({
-				fd: stdout,
-				close_fd: true,
-			});
-			GLib.close(stderr);
-			this._dataStdout = new Gio.DataInputStream({
-				base_stream: this._stdout,
-			});
-			// Waiting for an answer
-			GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, function (pid) {
-				GLib.spawn_close_pid(pid);
-				let rawStatus = this._dataStdout.toString().trim();
+		const data = execCommunicate(argv);
+		execCommunicate(argv)
+			.then((result) => {
+				// Success
+				let rawStatus = result.toString().trim();
 
 				const splitStatus = rawStatus.split("\n");
 				const connectionLine = splitStatus.find((line) =>
 					line.includes("Status:")
 				);
-				vpnCurrentState = connectionLine
+				this._vpnCurrentState = connectionLine
 					? connectionLine.replace("Status:", "").trim()
-					: "Loading...";
+					: "Unknown";
+
+				vpnStatusIndicator._update(this._vpnCurrentState);
+			})
+			.catch((e) => {
+				// Error
+				logError(e);
 			});
-		}
-		return vpnCurrentState;
 	}
 }
 
@@ -144,7 +149,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		 * @private
 		 */
 		_refresh() {
-			this._update(this.pvpn.getStatus());
+			this.pvpn.getStatus();
 
 			if (this._timeout) {
 				Mainloop.source_remove(this._timeout);
@@ -156,6 +161,7 @@ const VPNStatusIndicator = GObject.registerClass(
 				Lang.bind(this, this._refresh)
 			);
 		}
+
 		/**
 		 * Updates the widgets based on the vpn status
 		 *
@@ -167,6 +173,7 @@ const VPNStatusIndicator = GObject.registerClass(
 			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
 			if (vpnStatus == "Connected") {
+				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = true;
 
 				if (!this._disconnectAction)
@@ -179,7 +186,30 @@ const VPNStatusIndicator = GObject.registerClass(
 					this._connectAction.destroy();
 					this._connectAction = null;
 				}
+			}
+			else if (vpnStatus == "Loading") {
+				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
+				this._indicator.visible = true;
+
+				if (this._connectAction) {
+					this._connectAction.destroy();
+					this._connectAction = null;
+					this._disconnectAction = this._item.menu.addAction(
+						"Disconnect",
+						this._disconnect.bind(this)
+					);
+				}
+				if (this._disconnectAction) {
+					this._disconnectAction.destroy();
+					this._disconnectAction = null;
+					this._connectAction = this._item.menu.addAction(
+						"Connect",
+						this._connect.bind(this)
+					);
+
+				}
 			} else {
+				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = false;
 
 				if (!this._connectAction)

@@ -5,6 +5,6 @@
   "gettext-domain": "protonvpn-status",
   "uuid": "protonvpn-status@ceiphr.com",
   "shell-version": ["3.36"],
-  "url": "https://github.com/ceiphr/gnome-protonvpn-status",
+  "url": "https://github.com/ceiphr/gse-protonvpn-status",
   "version": 1
 }
