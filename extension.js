@@ -1,17 +1,17 @@
-const { St, Clutter, GLib, GObject } = imports.gi;
+const { St, Clutter, Gio, GLib, GObject } = imports.gi;
 const { panelMenu, popupMenu, main } = imports.ui;
 const AggregateMenu = main.panel.statusArea.aggregateMenu;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 
 let vpnStatusIndicator;
+let vpnCurrentState;
 
 class ProtonVPN {
 	constructor() {
 		this._commands = {
 			connect: "sudo protonvpn connect -f",
 			disconnect: "sudo protonvpn disconnect",
-			status: "protonvpn status",
 		};
 	}
 
@@ -41,19 +41,52 @@ class ProtonVPN {
 	 * @returns {status: string}
 	 */
 	getStatus() {
-		const data = GLib.spawn_command_line_sync(this._commands.status)[1];
-
-		let rawStatus = data.toString().trim();
-
-		const splitStatus = rawStatus.split("\n");
-		const connectionLine = splitStatus.find((line) =>
-			line.includes("Status:")
+		// const data = GLib.spawn_command_line_sync(this._commands.status)[1];
+		// https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/5d5ca80d179ce424e3cf202f3715004654b089d5/js/ui/components/networkAgent.js#L387
+		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
+		let [
+			success_,
+			pid,
+			stdin,
+			stdout,
+			stderr,
+		] = GLib.spawn_async_with_pipes(
+			null /* pwd */,
+			argv,
+			null /* envp */,
+			GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+			null /* child_setup */
 		);
-		const status = connectionLine
-			? connectionLine.replace("Status:", "").trim()
-			: "Loading...";
 
-		return status;
+		if (success_ && pid != 0) {
+			this._childPid = pid;
+			this._stdin = new Gio.UnixOutputStream({
+				fd: stdin,
+				close_fd: true,
+			});
+			this._stdout = new Gio.UnixInputStream({
+				fd: stdout,
+				close_fd: true,
+			});
+			GLib.close(stderr);
+			this._dataStdout = new Gio.DataInputStream({
+				base_stream: this._stdout,
+			});
+			// Waiting for an answer
+			GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, function (pid) {
+				GLib.spawn_close_pid(pid);
+				let rawStatus = this._dataStdout.toString().trim();
+
+				const splitStatus = rawStatus.split("\n");
+				const connectionLine = splitStatus.find((line) =>
+					line.includes("Status:")
+				);
+				vpnCurrentState = connectionLine
+					? connectionLine.replace("Status:", "").trim()
+					: "Loading...";
+			});
+		}
+		return vpnCurrentState;
 	}
 }
 
