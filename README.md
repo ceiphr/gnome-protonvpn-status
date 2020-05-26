@@ -52,7 +52,7 @@ Significant portion of code in this extension were derived from [@bajcmartinez](
 
 The ProtonVPN logo and mark are both registered trademarks of Proton Technologies AG.
 
-[Checkmark icon](https://icons8.com/icons/set/checkmark) using in "Planned Features" by [Icons8](https://icons8.com).
+The [checkmark icon](https://icons8.com/icons/set/checkmark) used in "Planned Features" was created by [Icons8](https://icons8.com).
 
 ### License & Terms 
 ProtonVPN Status is available under the [GNU GENERAL PUBLIC LICENSE v3.0](LICENSE).
