@@ -34,12 +34,13 @@ function execCommunicate(argv, input = null, cancellable = null) {
 	});
 }
 
-function notify(msg, details, icon) {
-    let source = new messageTray.Source("ProtonVPN Status", icon);
-    main.messageTray.add(source);
-    let notification = new messageTray.Notification(source, msg, details);
-    notification.setTransient(true);
-    source.notify(notification);
+function notify(msg, details) {
+	let source = new messageTray.Source("ProtonVPN Status", "network-vpn-symbolic");
+
+	main.messageTray.add(source);
+	let notification = new messageTray.Notification(source, msg, details);
+	notification.setTransient(true);
+	source.notify(notification);
 }
 
 class ProtonVPN {
@@ -55,8 +56,8 @@ class ProtonVPN {
 	 */
 	connect() {
 		GLib.spawn_command_line_async(this._commands.connect);
-		vpnStatusIndicator.update("Loading");
-		notify("ProtonVPN", "Connecting...", 'network-vpn-symbolic');
+		vpnStatusIndicator.update("Connecting");
+		notify("ProtonVPN", "Connecting...");
 	}
 
 	/**
@@ -64,8 +65,8 @@ class ProtonVPN {
 	 */
 	disconnect() {
 		GLib.spawn_command_line_async(this._commands.disconnect);
-		vpnStatusIndicator.update("Loading");
-		notify("ProtonVPN", "Disconnecting...", 'network-vpn-symbolic');
+		vpnStatusIndicator.update("Disconnecting");
+		notify("ProtonVPN", "Disconnecting...");
 	}
 
 	/**
@@ -133,14 +134,13 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Determine whether to connect or disconnect based on 
+		 * Determine whether to connect or disconnect based on
 		 * _connectItem's current label
 		 *
 		 * @private
 		 */
 		_toggleConnection() {
-			if(this._connectItem.label.text == "Connect")
-				this._connect();
+			if (this._connectItem.label.text == "Connect") this._connect();
 			else if (this._connectItem.label.text == "Disconnect")
 				this._disconnect();
 		}
@@ -150,7 +150,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		 *
 		 * @private
 		 */
-		_connect() {	
+		_connect() {
 			this.pvpn.connect();
 		}
 
@@ -196,7 +196,11 @@ const VPNStatusIndicator = GObject.registerClass(
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = true;
 				this._connectItem.label.text = "Disconnect";
-			} else if (vpnStatus == "Loading") {
+			} else if (vpnStatus == "Connecting") {
+				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
+				this._indicator.visible = true;
+				this._connectItem.label.text = "Waiting for ProtonVPN";
+			} else if (vpnStatus == "Disconnecting") {
 				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
 				this._indicator.visible = true;
 				this._connectItem.label.text = "Waiting for ProtonVPN";
