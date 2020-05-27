@@ -190,14 +190,10 @@ const VPNStatusIndicator = GObject.registerClass(
 				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
 				this._indicator.visible = true;
 				this._connectItem.label.text = "Waiting for ProtonVPN";
-			} else if (vpnStatus == "Disconnected") {
+			} else {
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = false;
 				this._connectItem.label.text = "Connect";
-			} else {
-				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Waiting for ProtonVPN";
 			}
 		}
 

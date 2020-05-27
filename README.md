@@ -36,9 +36,8 @@ This extension offers a drop-down item in the user menu which will simply allow 
 |Additional Features|Feature Implemented|
 |:-----|:-----:|
 |Add notification to indicate connection status||
-|Add server details to notification||
-|Offer GUI for changing ProtonVPN linux-cli client settings||
 |Change VPN notification icon to ProtonVPN mark||
+|Offer GUI for changing ProtonVPN linux-cli client settings||
 
 ### Compatibility
 
@@ -50,15 +49,16 @@ This extension is developed and maintained by [@ceiphr](https://github.com/ceiph
 
 Significant portion of code in this extension were derived from [@bajcmartinez](https://github.com/bajcmartinez)'s [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
 
-The ProtonVPN logo and mark are both registered trademarks of Proton Technologies AG. 
+The ProtonVPN logo and mark are both registered trademarks of Proton Technologies AG.
 
 The GNOME foot logo is a registered trademark of The GNOME Foundation.
 
 The [checkmark icon](https://icons8.com/icons/set/checkmark) used in "Planned Features" was created by [Icons8](https://icons8.com).
 
+Thank you to [u/ndhlms](https://www.reddit.com/user/ndhlms/) for [recommending the use of `GSubprocess` for handling status updated](https://www.reddit.com/r/gnome/comments/gqvgeu/glibspawn_command_line_sync_performance_question/frwgd5y?utm_source=share&utm_medium=web2x).
 
+### License & Terms
 
-### License & Terms 
 ProtonVPN Status is available under the [GNU GENERAL PUBLIC LICENSE v3.0](LICENSE).
 
 ### Disclaimer
