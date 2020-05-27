@@ -1,5 +1,5 @@
 const { St, Clutter, Gio, GLib, GObject } = imports.gi;
-const { panelMenu, popupMenu, main } = imports.ui;
+const { panelMenu, popupMenu, main, messageTray } = imports.ui;
 const AggregateMenu = main.panel.statusArea.aggregateMenu;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
@@ -34,6 +34,14 @@ function execCommunicate(argv, input = null, cancellable = null) {
 	});
 }
 
+function notify(msg, details, icon) {
+    let source = new messageTray.Source("ProtonVPN Status", icon);
+    main.messageTray.add(source);
+    let notification = new messageTray.Notification(source, msg, details);
+    notification.setTransient(true);
+    source.notify(notification);
+}
+
 class ProtonVPN {
 	constructor() {
 		this._commands = {
@@ -48,6 +56,7 @@ class ProtonVPN {
 	connect() {
 		GLib.spawn_command_line_async(this._commands.connect);
 		vpnStatusIndicator.update("Loading");
+		notify("ProtonVPN", "Connecting...", 'network-vpn-symbolic');
 	}
 
 	/**
@@ -56,6 +65,7 @@ class ProtonVPN {
 	disconnect() {
 		GLib.spawn_command_line_async(this._commands.disconnect);
 		vpnStatusIndicator.update("Loading");
+		notify("ProtonVPN", "Disconnecting...", 'network-vpn-symbolic');
 	}
 
 	/**
