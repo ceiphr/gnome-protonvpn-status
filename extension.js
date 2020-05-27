@@ -5,6 +5,7 @@ const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 
 let vpnStatusIndicator;
+let allowStatusUpdate;
 
 // https://andyholmes.github.io/articles/subprocesses-in-gjs.html
 function execCommunicate(argv, input = null, cancellable = null) {
@@ -77,6 +78,10 @@ class ProtonVPN {
 	getStatus() {
 		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
 		const data = execCommunicate(argv);
+
+		// If vpnStatusIndicator.update() is already in use, let's not run it again.
+		if( !allowStatusUpdate ) return;
+
 		execCommunicate(argv)
 			.then((result) => {
 				// Success
@@ -88,13 +93,12 @@ class ProtonVPN {
 				);
 				this._vpnCurrentState = connectionLine
 					? connectionLine.replace("Status:", "").trim()
-					: "Unknown";
+					: "Waiting";
 
 				vpnStatusIndicator.update(this._vpnCurrentState);
 			})
 			.catch((e) => {
-				// Error
-				logError(e);
+				reject(e);
 			});
 	}
 }
@@ -189,6 +193,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		 * @param vpnStatus Current status of your ProtonVPN connection
 		 */
 		update(vpnStatus) {
+			allowStatusUpdate = false;
 			// Update the panel button
 			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
@@ -204,11 +209,17 @@ const VPNStatusIndicator = GObject.registerClass(
 				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
 				this._indicator.visible = true;
 				this._connectItem.label.text = "Waiting for ProtonVPN";
-			} else {
+			} else if (vpnStatus == "Disconnected") {
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = false;
 				this._connectItem.label.text = "Connect";
+			} else if (vpnStatus == "Waiting")  {
+				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
+				this._indicator.visible = true;
+				this._connectItem.label.text = "Waiting for ProtonVPN";
 			}
+
+			allowStatusUpdate = true;
 		}
 
 		destroy() {

@@ -1,6 +1,6 @@
 {
   "name": "ProtonVPN Status",
-  "description": "A Gnome extension for controlling and monitoring your ProtonVPN connection through Gnome.",
+  "description": "A GNOME extension for controlling and monitoring your ProtonVPN connection through GNOME.",
   "extension-id": "protonvpn-status",
   "gettext-domain": "protonvpn-status",
   "uuid": "protonvpn-status@ceiphr.com",
