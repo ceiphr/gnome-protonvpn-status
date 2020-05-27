@@ -165,7 +165,7 @@ const VPNStatusIndicator = GObject.registerClass(
 				Mainloop.source_remove(this._timeout);
 				this._timeout = null;
 			}
-			
+
 			// the refresh function will be called every 10 sec.
 			this._timeout = Mainloop.timeout_add_seconds(
 				10,
