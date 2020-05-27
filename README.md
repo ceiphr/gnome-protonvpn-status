@@ -22,6 +22,12 @@ Once you've done that, install and enable the extension on GNOME Extensions:
 
 [ego]: https://extensions.gnome.org/extension/3133/protonvpn-status/
 
+### Manual Install
+
+```bash
+git clone git@github.com:ceiphr/gse-protonvpn-status.git /home/$USER/.local/share/gnome-shell/extensions/protonvpn-status@ceiphr.com
+```
+
 ## What This Extension Offers
 
 If you want to interact with ProtonVPN the same way the network-manager handles OpenVPN, this is the extension for you.
@@ -32,10 +38,9 @@ This extension offers a drop-down item in the user menu which will simply allow 
 
 ### Planned Features
 
-<!-- <img src="assets/done.png" alt="Done" width="24px"/> -->
 |Additional Features|Feature Implemented|
 |:-----|:-----:|
-|Add notification to indicate connection status||
+|Add notification to indicate connection status|<img src="assets/done.png" alt="Done" width="24px"/>|
 |Change VPN notification icon to ProtonVPN mark||
 |Offer GUI for changing ProtonVPN linux-cli client settings||
 
