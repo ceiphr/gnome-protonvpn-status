@@ -47,10 +47,7 @@ class ProtonVPN {
 	 */
 	connect() {
 		GLib.spawn_command_line_async(this._commands.connect);
-		vpnStatusIndicator._update("Loading");
-		GLib.spawn_command_line_async(
-			"notify-send ProtonVPN Connecting... -i network-vpn-symbolic"
-		);
+		vpnStatusIndicator.update("Loading");
 	}
 
 	/**
@@ -58,10 +55,7 @@ class ProtonVPN {
 	 */
 	disconnect() {
 		GLib.spawn_command_line_async(this._commands.disconnect);
-		vpnStatusIndicator._update("Loading");
-		GLib.spawn_command_line_async(
-			"notify-send ProtonVPN Disconnecting... -i network-vpn-symbolic"
-		);
+		vpnStatusIndicator.update("Loading");
 	}
 
 	/**
@@ -70,7 +64,6 @@ class ProtonVPN {
 	 * @returns {status: string}
 	 */
 	getStatus() {
-		// const data = GLib.spawn_command_line_sync(this._commands.status)[1];
 		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
 		const data = execCommunicate(argv);
 		execCommunicate(argv)
@@ -86,7 +79,7 @@ class ProtonVPN {
 					? connectionLine.replace("Status:", "").trim()
 					: "Unknown";
 
-				vpnStatusIndicator._update(this._vpnCurrentState);
+				vpnStatusIndicator.update(this._vpnCurrentState);
 			})
 			.catch((e) => {
 				// Error
@@ -119,6 +112,10 @@ const VPNStatusIndicator = GObject.registerClass(
 			// Add elements to the UI
 			AggregateMenu._indicators.insert_child_at_index(this.indicators, 0);
 			AggregateMenu.menu.addMenuItem(this.menu, 4);
+			this._connectItem = this._item.menu.addAction(
+				"Connect",
+				this._toggleConnection.bind(this)
+			);
 		}
 
 		enable() {
@@ -126,11 +123,24 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
+		 * Determine whether to connect or disconnect based on 
+		 * _connectItem's current label
+		 *
+		 * @private
+		 */
+		_toggleConnection() {
+			if(this._connectItem.label.text == "Connect")
+				this._connect();
+			else if (this._connectItem.label.text == "Disconnect")
+				this._disconnect();
+		}
+
+		/**
 		 * Call ProtonVPN Command Line Tool to connect to the VPN Service
 		 *
 		 * @private
 		 */
-		_connect() {
+		_connect() {	
 			this.pvpn.connect();
 		}
 
@@ -155,6 +165,7 @@ const VPNStatusIndicator = GObject.registerClass(
 				Mainloop.source_remove(this._timeout);
 				this._timeout = null;
 			}
+			
 			// the refresh function will be called every 10 sec.
 			this._timeout = Mainloop.timeout_add_seconds(
 				10,
@@ -163,71 +174,37 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Updates the widgets based on the vpn status
+		 * Updates the widgets based on ProtonVPN's reported status
 		 *
-		 * @param vpnStatus
-		 * @private
+		 * @param vpnStatus Current status of your ProtonVPN connection
 		 */
-		_update(vpnStatus) {
+		update(vpnStatus) {
 			// Update the panel button
 			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
 			if (vpnStatus == "Connected") {
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = true;
-
-				if (!this._disconnectAction)
-					this._disconnectAction = this._item.menu.addAction(
-						"Disconnect",
-						this._disconnect.bind(this)
-					);
-
-				if (this._connectAction) {
-					this._connectAction.destroy();
-					this._connectAction = null;
-				}
-			}
-			else if (vpnStatus == "Loading") {
+				this._connectItem.label.text = "Disconnect";
+			} else if (vpnStatus == "Loading") {
 				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
 				this._indicator.visible = true;
-
-				if (this._connectAction) {
-					this._connectAction.destroy();
-					this._connectAction = null;
-					this._disconnectAction = this._item.menu.addAction(
-						"Disconnect",
-						this._disconnect.bind(this)
-					);
-				}
-				if (this._disconnectAction) {
-					this._disconnectAction.destroy();
-					this._disconnectAction = null;
-					this._connectAction = this._item.menu.addAction(
-						"Connect",
-						this._connect.bind(this)
-					);
-
-				}
-			} else {
+				this._connectItem.label.text = "Waiting for ProtonVPN";
+			} else if (vpnStatus == "Disconnected") {
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = false;
-
-				if (!this._connectAction)
-					this._connectAction = this._item.menu.addAction(
-						"Connect",
-						this._connect.bind(this)
-					);
-
-				if (this._disconnectAction) {
-					this._disconnectAction.destroy();
-					this._disconnectAction = null;
-				}
+				this._connectItem.label.text = "Connect";
+			} else {
+				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
+				this._indicator.visible = true;
+				this._connectItem.label.text = "Waiting for ProtonVPN";
 			}
 		}
 
 		destroy() {
 			if (this._timeout) Mainloop.source_remove(this._timeout);
 			this._timeout = undefined;
+
 			// Call destroy on the parent
 			this._indicator.destroy();
 			this._item.destroy();
