@@ -3,6 +3,7 @@ const { panelMenu, popupMenu, main, messageTray } = imports.ui;
 const AggregateMenu = main.panel.statusArea.aggregateMenu;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
 let vpnStatusIndicator;
 
@@ -34,8 +35,18 @@ function execCommunicate(argv, input = null, cancellable = null) {
 	});
 }
 
+// Custom implementation of gnome-shell's notify
 function notify(msg, details) {
-	let source = new messageTray.Source("ProtonVPN Status", "network-vpn-symbolic");
+	let source = new messageTray.Source(
+		"ProtonVPN Status",
+		"network-vpn-symbolic"
+	);
+
+	// Overrides the use of "network-vpn-symbolic" so notif.svg is used instead.
+	source.createIcon = function (size) {
+		let gicon = Gio.icon_new_for_string(Extension.path + "/notif.svg");
+		return new St.Icon({ gicon: gicon, icon_size: size });
+	};
 
 	main.messageTray.add(source);
 	let notification = new messageTray.Notification(source, msg, details);
@@ -204,14 +215,14 @@ const VPNStatusIndicator = GObject.registerClass(
 				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
 				this._indicator.visible = true;
 				this._connectItem.label.text = "Waiting for ProtonVPN";
+			} else if (vpnStatus == "Waiting") {
+				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
+				this._indicator.visible = true;
+				this._connectItem.label.text = "Waiting for ProtonVPN";
 			} else if (vpnStatus == "Disconnected") {
 				this._indicator.icon_name = "network-vpn-symbolic";
 				this._indicator.visible = false;
 				this._connectItem.label.text = "Connect";
-			} else if (vpnStatus == "Waiting")  {
-				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Waiting for ProtonVPN";
 			}
 		}
 
