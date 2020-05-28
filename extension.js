@@ -230,9 +230,12 @@ const VPNStatusIndicator = GObject.registerClass(
 			if (this._timeout) Mainloop.source_remove(this._timeout);
 			this._timeout = undefined;
 
-			// Call destroy on the parent
+			AggregateMenu._indicators.remove_actor(this.indicators);
 			this._indicator.destroy();
+			this._indicator = null;
+
 			this._item.destroy();
+			this._item = null;
 		}
 	}
 );
