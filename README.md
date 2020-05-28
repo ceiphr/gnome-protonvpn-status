@@ -4,7 +4,7 @@
 
 # Unofficial ProtonVPN Status
 
-![GitHub top language](https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status) ![GitHub](https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status)
+![Gnome version](https://img.shields.io/badge/gnome-3.36-blue?logo=gnome&logoColor=white) ![GitHub top language](https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status) ![License](https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status)
 
 A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE.
 
@@ -19,6 +19,8 @@ This extension uses the ProtonVPN linux-cli tool. You will need to install it be
 <https://protonvpn.com/support/linux-vpn-tool/>
 
 Once you've done that, install and enable the extension on GNOME Extensions:
+
+**NOTICE: This extension is under review, so you can't get it on GNOME Extensions yet. Please install manually for the time being. This README will be updated when the extension is approved.**
 
 [<img src="assets/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][ego]
 
