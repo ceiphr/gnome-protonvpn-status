@@ -74,6 +74,4 @@ ProtonVPN Status is available under the [GNU GENERAL PUBLIC LICENSE v3.0](LICENS
 
 ProtonVPN is a product of Proton Technologies AG. I, [Ari Birnbaum](https://www.ceiphr.com/), am in no way affiliated with ProtonVPN, the ProtonVPN team, or Proton Technologies AG. Please determine if your issue pertains to this extension or to ProtonVPN's linux-cli client before reporting it.
 
-GNOME is a project of The GNOME Foundation. I, [Ari Birnbaum](https://www.ceiphr.com/), am in no way affiliated with GNOME or The GNOME Foundation.
-
 Thank you for using the extension. I really appreciate it.
