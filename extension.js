@@ -87,11 +87,9 @@ class ProtonVPN {
 	 */
 	getStatus() {
 		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
-		const data = execCommunicate(argv);
 
 		execCommunicate(argv)
 			.then((result) => {
-				// Success
 				let rawStatus = result.toString().trim();
 
 				const splitStatus = rawStatus.split("\n");
