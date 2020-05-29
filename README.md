@@ -12,6 +12,8 @@ A GNOME extension for controlling and monitoring your ProtonVPN connection throu
 
 [**You need to follow this official guide by the ProtonVPN team inorder to allow this extension to handle the ProtonVPN linux-cli client without superuser privilages.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
+The ProtonVPN team has currently implemented the ability to use `pkexec` which means you won't need to follow this guide in newer releases of the cli-client. So we just need to wait for this feature to be put in a production release of the client on PyPi.
+
 ## How to Install This Extension
 
 This extension uses the ProtonVPN linux-cli tool. You will need to install it before using this extension. Please follow ProtonVPN's installation guide for your current distribution:
@@ -48,9 +50,10 @@ This extension offers a drop-down item in the user menu which will simply allow 
 |:-----|:-----:|
 |Add notification to indicate connection status|<img src="assets/done.png" alt="Done" width="24px"/>|
 |Change VPN notification icon to ProtonVPN mark|<img src="assets/done.png" alt="Done" width="24px"/>|
+|Use `pkexec` to handle sudo commands||
 |Add country/connection type selection support||
 |Add autostart option in extension settings||
-|Offer GUI for changing ProtonVPN linux-cli client settings||
+|Add GUI for changing linux-cli client settings||
 
 ### Compatibility
 

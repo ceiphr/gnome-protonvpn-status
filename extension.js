@@ -29,10 +29,28 @@ function execCommunicate(argv, input = null, cancellable = null) {
 
 				resolve(stdout.trim());
 			} catch (e) {
-				reject(e);
+				logError(
+					new Error(
+						`Unknown ProtonVPN status: ${e}. Is ProtonVPN installed? Can \
+						this extension issue commands to ProtonVPN?`
+					)
+				);
 			}
 		});
 	});
+}
+
+// Custom implementation of gnome-shell's notify
+function errorNotify(msg, details) {
+	let source = new messageTray.Source(
+		"ProtonVPN Status",
+		"dialog-error-symbolic"
+	);
+
+	main.messageTray.add(source);
+	let notification = new messageTray.Notification(source, msg, details);
+	notification.setTransient(true);
+	source.notify(notification);
 }
 
 // Custom implementation of gnome-shell's notify
@@ -66,18 +84,40 @@ class ProtonVPN {
 	 * Call ProtonVPN Command Line Tool to connect to the VPN Service
 	 */
 	connect() {
-		GLib.spawn_command_line_async(this._commands.connect);
-		vpnStatusIndicator.update("Connecting");
-		notify("ProtonVPN", "Connecting...");
+		let success = GLib.spawn_command_line_async(this._commands.connect);
+
+		if (success) {
+			vpnStatusIndicator.update("Connecting");
+			notify("ProtonVPN", "Connecting...");
+		} else {
+			logError(new Error(`Invalid result of ProtonVPN connect: ${e}`));
+			errorNotify(
+				"ProtonVPN Status Extension",
+				"Unknown ProtonVPN response. \nIs ProtonVPN installed? Can \
+				this extension issue commands to ProtonVPN?"
+			);
+			vpnStatusIndicator.update("Disconnected");
+		}
 	}
 
 	/**
 	 * Call ProtonVPN Command Line Tool to disconnect to the VPN Service
 	 */
 	disconnect() {
-		GLib.spawn_command_line_async(this._commands.disconnect);
-		vpnStatusIndicator.update("Disconnecting");
-		notify("ProtonVPN", "Disconnecting...");
+		let success = GLib.spawn_command_line_async(this._commands.disconnect);
+
+		if (success) {
+			vpnStatusIndicator.update("Disconnecting");
+			notify("ProtonVPN", "Disconnecting...");
+		} else {
+			logError(new Error(`Invalid result of ProtonVPN disconnect: ${e}`));
+			errorNotify(
+				"ProtonVPN Status Extension",
+				"Unknown ProtonVPN response. \nIs ProtonVPN installed? Can \
+				this extension issue commands to ProtonVPN?"
+			);
+			vpnStatusIndicator.update("Disconnected");
+		}
 	}
 
 	/**
@@ -103,7 +143,13 @@ class ProtonVPN {
 				vpnStatusIndicator.update(this._vpnCurrentState);
 			})
 			.catch((e) => {
-				reject(e);
+				logError(
+					new Error(
+						`Unknown ProtonVPN status: ${e}. 
+						Is ProtonVPN installed? 
+						Can this extension issue commands to ProtonVPN?`
+					)
+				);
 			});
 	}
 }
@@ -201,26 +247,34 @@ const VPNStatusIndicator = GObject.registerClass(
 			// Update the panel button
 			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
-			if (vpnStatus == "Connected") {
-				this._indicator.icon_name = "network-vpn-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Disconnect";
-			} else if (vpnStatus == "Connecting") {
-				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Waiting for ProtonVPN";
-			} else if (vpnStatus == "Disconnecting") {
-				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Waiting for ProtonVPN";
-			} else if (vpnStatus == "Waiting") {
-				this._indicator.icon_name = "network-vpn-acquiring-symbolic";
-				this._indicator.visible = true;
-				this._connectItem.label.text = "Waiting for ProtonVPN";
-			} else if (vpnStatus == "Disconnected") {
-				this._indicator.icon_name = "network-vpn-symbolic";
-				this._indicator.visible = false;
-				this._connectItem.label.text = "Connect";
+			// https://www.reddit.com/r/gnome/comments/gshaj5/a_gnome_extension_for_handling_the_protonvpn_cli/fs70mvx?utm_source=share&utm_medium=web2x
+			switch (vpnStatus) {
+				case "Connected":
+					this._indicator.icon_name = "network-vpn-symbolic";
+					this._indicator.visible = true;
+					this._connectItem.label.text = "Disconnect";
+					break;
+				case "Connecting":
+				case "Disconnecting":
+				case "Waiting":
+					this._indicator.icon_name =
+						"network-vpn-acquiring-symbolic";
+					this._indicator.visible = true;
+					this._connectItem.label.text = vpnStatus;
+					break;
+				case "Disconnected":
+					this._indicator.visible = false;
+					this._connectItem.label.text = "Connect";
+					break;
+				default:
+					logError(
+						new Error(
+							`Unknown ProtonVPN status: ${vpnStatus}. 
+							Is ProtonVPN installed? 
+							Can this extension issue commands to ProtonVPN?`
+						)
+					);
+					break;
 			}
 		}
 
