@@ -29,12 +29,7 @@ function execCommunicate(argv, input = null, cancellable = null) {
 
 				resolve(stdout.trim());
 			} catch (e) {
-				logError(
-					new Error(
-						`Unknown ProtonVPN status: ${e}. Is ProtonVPN installed? Can \
-						this extension issue commands to ProtonVPN?`
-					)
-				);
+				reject(e);
 			}
 		});
 	});
