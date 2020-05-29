@@ -274,7 +274,7 @@ const VPNStatusIndicator = GObject.registerClass(
 
 		/**
 		 * Call the linux-cli client to connect to get the status of the VPN connection.
-		 * Refreshs every 20 seconds to update the status information.
+		 * Refreshes every 20 seconds to update the status information.
 		 *
 		 * @private
 		 */
@@ -286,7 +286,7 @@ const VPNStatusIndicator = GObject.registerClass(
 				this._timeout = null;
 			}
 
-			// the refresh function will be called every 10 sec.
+			// the refresh function will be called every 20 sec.
 			this._timeout = Mainloop.timeout_add_seconds(
 				20,
 				Lang.bind(this, this._refresh)
