@@ -1,13 +1,38 @@
-const { St, Clutter, Gio, GLib, GObject } = imports.gi;
-const { panelMenu, popupMenu, main, messageTray } = imports.ui;
-const AggregateMenu = main.panel.statusArea.aggregateMenu;
-const Lang = imports.lang;
-const Mainloop = imports.mainloop;
-const Extension = imports.misc.extensionUtils.getCurrentExtension();
+/**
+ * A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE.
+ *
+ * Written in JavaScript. This extension requires GJS, GLib, Gio and all other imported 
+ * listed below to function properly.
+ *
+ * @link   https://github.com/ceiphr/gse-protonvpn-status
+ * @author Ari Birnbaum (ceiphr).
+ */
+
+const { St, Clutter, Gio, GLib, GObject } 			= imports.gi;
+const { panelMenu, popupMenu, main, messageTray } 	= imports.ui;
+const Lang 											= imports.lang;
+const Mainloop 										= imports.mainloop;
+const Extension 									= imports.misc.extensionUtils.getCurrentExtension();
+const AggregateMenu 								= main.panel.statusArea.aggregateMenu;
 
 let vpnStatusIndicator;
 
-// https://andyholmes.github.io/articles/subprocesses-in-gjs.html
+/**
+ * Andy Holmes recommended using a Gio.Subprocess for handling commands
+ * and getting the command result without halting GNOME's main thread.
+ *
+ * https://andyholmes.github.io/articles/subprocesses-in-gjs.html
+ *
+ * If we issued the ProtonVPN status command without a Gio.Subprocess,
+ * we would need to wait until we got a response. The status command takes
+ * roughly ~1 seconds to respond which means GNOME would freeze for one second
+ * every time getStatus() is called. Running a Gio.Subprocess to handle this
+ * command and returning a Promise solves this problem.
+ *
+ * @param {Array} 	argv		Command to be run in a Gio.Subprocess
+ * @param {*} 		input
+ * @param {*} 		cancellable
+ */
 function execCommunicate(argv, input = null, cancellable = null) {
 	let flags =
 		Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
@@ -35,7 +60,13 @@ function execCommunicate(argv, input = null, cancellable = null) {
 	});
 }
 
-// Custom implementation of gnome-shell's notify
+/**
+ * Custom implementation of gnome-shell's
+ * notify for notifying the user of errors.
+ *
+ * @param {String} msg		The title of the notification
+ * @param {String} details	The body of the notification
+ */
 function errorNotify(msg, details) {
 	let source = new messageTray.Source(
 		"ProtonVPN Status",
@@ -48,7 +79,13 @@ function errorNotify(msg, details) {
 	source.notify(notification);
 }
 
-// Custom implementation of gnome-shell's notify
+/**
+ * Custom implementation of gnome-shell's
+ * notify for VPN connectivity notifications.
+ *
+ * @param {String} msg		The title of the notification
+ * @param {String} details	The body of the notification
+ */
 function notify(msg, details) {
 	let source = new messageTray.Source(
 		"ProtonVPN Status",
@@ -70,13 +107,19 @@ function notify(msg, details) {
 class ProtonVPN {
 	constructor() {
 		this._commands = {
-			connect: "sudo protonvpn connect -f",
+			// Waiting for new release of the ProtonVPN linux-cli client to use this.
+			// connect: "pkexec protonvpn connect -f",
+			// disconnect: "pkexec protonvpn disconnect",
+
+			// Extension can run sudo commands if the following guide is used as a work around
+			// https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query
+			connect: "sudo protonvpn connect -f", // -f tells the linux-cli client to use the fastest server
 			disconnect: "sudo protonvpn disconnect",
 		};
 	}
 
 	/**
-	 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+	 * Call the linux-cli client to connect.
 	 */
 	connect() {
 		let success = GLib.spawn_command_line_async(this._commands.connect);
@@ -96,7 +139,7 @@ class ProtonVPN {
 	}
 
 	/**
-	 * Call ProtonVPN Command Line Tool to disconnect to the VPN Service
+	 * Call the linux-cli client to disconnect.
 	 */
 	disconnect() {
 		let success = GLib.spawn_command_line_async(this._commands.disconnect);
@@ -116,12 +159,17 @@ class ProtonVPN {
 	}
 
 	/**
-	 * Call ProtonVPN Command Line Tool to get the status of the VPN connection
+	 * Call the linux-cli client to connect to get the status of the VPN connection.
+	 * Either the current status from the linux-cli client is returned or "Waiting" is returned.
 	 *
-	 * @returns {status: string}
+	 * "Waiting" means the client gave an unexpected response, so we'll wait until the next _refresh()
+	 * call to see if the client will give an expected response.
+	 *
+	 * @returns {String}	Current status of VPN connection or "Waiting"
 	 */
 	getStatus() {
-		let argv = ["protonvpn", "status"]; // status checking command is "protonvpn status"
+		// status checking command is "protonvpn status," sudo isn't required
+		let argv = ["protonvpn", "status"]; 
 
 		execCommunicate(argv)
 			.then((result) => {
@@ -151,6 +199,13 @@ class ProtonVPN {
 
 const VPNStatusIndicator = GObject.registerClass(
 	class VPNStatusIndicator extends panelMenu.SystemIndicator {
+		/**
+		 * Initialize the extension.
+		 *
+		 * Creates the indicator (the VPN icon in the status bar). Creates the menu
+		 * item that allows you to connect/disconnect from ProtonVPN. Adds these two new
+		 * elements to GNOME's user interface.
+		 */
 		_init() {
 			super._init();
 
@@ -161,7 +216,7 @@ const VPNStatusIndicator = GObject.registerClass(
 
 			// Build a menu
 
-			// main item with the header section
+			// Menu item with the header section
 			this._item = new popupMenu.PopupSubMenuMenuItem("ProtonVPN", true);
 			this._item.icon.icon_name = "network-vpn-symbolic";
 			this._item.label.clutter_text.x_expand = true;
@@ -179,13 +234,17 @@ const VPNStatusIndicator = GObject.registerClass(
 			);
 		}
 
+		/**
+		 * Starts the extension's _refresh loop for
+		 * checking the VPN connection status.
+		 */
 		enable() {
 			this._refresh();
 		}
 
 		/**
 		 * Determine whether to connect or disconnect based on
-		 * _connectItem's current label
+		 * _connectItem's current label.
 		 *
 		 * @private
 		 */
@@ -196,7 +255,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+		 * Call the linux-cli client to connect.
 		 *
 		 * @private
 		 */
@@ -205,7 +264,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Call ProtonVPN Command Line Tool to connect to the VPN Service
+		 * Call the linux-cli client to disconnect.
 		 *
 		 * @private
 		 */
@@ -214,7 +273,8 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Call ProtonVPN Command Line Tool to get the current status of the connection
+		 * Call the linux-cli client to connect to get the status of the VPN connection.
+		 * Refreshs every 20 seconds to update the status information.
 		 *
 		 * @private
 		 */
@@ -228,20 +288,22 @@ const VPNStatusIndicator = GObject.registerClass(
 
 			// the refresh function will be called every 10 sec.
 			this._timeout = Mainloop.timeout_add_seconds(
-				10,
+				20,
 				Lang.bind(this, this._refresh)
 			);
 		}
 
 		/**
-		 * Updates the widgets based on ProtonVPN's reported status
+		 * Updates the user interface elements we've created in _init()
+		 * based on the vpnStatus string.
 		 *
-		 * @param vpnStatus Current status of your ProtonVPN connection
+		 * @param {String} vpnStatus		Current status of your ProtonVPN connection
 		 */
 		update(vpnStatus) {
 			// Update the panel button
 			this._item.label.text = `ProtonVPN ${vpnStatus}`;
 
+			// u/Rafostar suggested cleaning up this section with a switch statement and white space
 			// https://www.reddit.com/r/gnome/comments/gshaj5/a_gnome_extension_for_handling_the_protonvpn_cli/fs70mvx?utm_source=share&utm_medium=web2x
 			switch (vpnStatus) {
 				case "Connected":
@@ -249,6 +311,7 @@ const VPNStatusIndicator = GObject.registerClass(
 					this._indicator.visible = true;
 					this._connectItem.label.text = "Disconnect";
 					break;
+				// Transition states
 				case "Connecting":
 				case "Disconnecting":
 				case "Waiting":
@@ -273,6 +336,11 @@ const VPNStatusIndicator = GObject.registerClass(
 			}
 		}
 
+		/**
+		 * Removes the extension's _refresh loop. Removes the indicator from
+		 * the status bar. Destroys all elements created in _init() and
+		 * sets them to null.
+		 */
 		destroy() {
 			if (this._timeout) Mainloop.source_remove(this._timeout);
 			this._timeout = undefined;
@@ -289,14 +357,19 @@ const VPNStatusIndicator = GObject.registerClass(
 
 function init() {}
 
+/**
+ * Initialize the VPN status indicator
+ */
 function enable() {
-	// Init the indicator
 	vpnStatusIndicator = new VPNStatusIndicator();
 	vpnStatusIndicator.enable();
 }
 
+/**
+ * Remove the indicator from the panel and user menu.
+ * Destroys extension's elements and refresh loop.
+ */
 function disable() {
-	// Remove the indicator from the panel
 	vpnStatusIndicator.destroy();
 	vpnStatusIndicator = null;
 }

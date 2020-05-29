@@ -10,9 +10,9 @@ A GNOME extension for controlling and monitoring your ProtonVPN connection throu
 
 ## **IMPORTANT FOR THIS EXTENSION TO WORK**
 
-[**You need to follow this official guide by the ProtonVPN team inorder to allow this extension to handle the ProtonVPN linux-cli client without superuser privilages.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
+[**You need to follow this official guide by the ProtonVPN team to allow this extension to handle the ProtonVPN linux-cli client without superuser privileges.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
-The ProtonVPN team has currently implemented the ability to use `pkexec` which means you won't need to follow this guide in newer releases of the cli-client. So we just need to wait for this feature to be put in a production release of the client on PyPi.
+The ProtonVPN team has implemented the ability to use `pkexec` in newer releases of the linux-cli client. Once that feature is put into production, you will no longer need to follow this guide. The extension will instead ask for your superuser password and handle the linux-cli client with `sudo`. But, for now this guide is the only practical way to have this extension communicate with the linux-cli client.
 
 ## How to Install This Extension
 
@@ -38,7 +38,7 @@ git clone git@github.com:ceiphr/gse-protonvpn-status.git /home/$USER/.local/shar
 
 ## What This Extension Offers
 
-If you want to interact with ProtonVPN the same way the network-manager handles OpenVPN, this is the extension for you.
+If you want to interact with ProtonVPN the same way GNOME's network-manager handles OpenVPN, this is the extension for you.
 
 ![screenshot preview](assets/preview.png)
 
@@ -46,14 +46,18 @@ This extension offers a drop-down item in the user menu which will simply allow 
 
 ### Planned Features
 
-|Additional Features|Feature Implemented|
-|:-----|:-----:|
-|Add notification to indicate connection status|<img src="assets/done.png" alt="Done" width="24px"/>|
-|Change VPN notification icon to ProtonVPN mark|<img src="assets/done.png" alt="Done" width="24px"/>|
-|Use `pkexec` to handle sudo commands||
-|Add country/connection type selection support||
-|Add autostart option in extension settings||
-|Add GUI for changing linux-cli client settings||
+<!-- 
+Some suggestions are from here:
+https://www.reddit.com/r/gnome/comments/gshaj5/a_gnome_extension_for_handling_the_protonvpn_cli/fs71jfo?utm_source=share&utm_medium=web2x 
+-->
+| Planned Features                               |                 Feature Implemented                  |
+| :--------------------------------------------- | :--------------------------------------------------: |
+| Add notification to indicate connection status | <img src="assets/done.png" alt="Done" width="24px"/> |
+| Change VPN notification icon to ProtonVPN mark | <img src="assets/done.png" alt="Done" width="24px"/> |
+| Use `pkexec` to handle sudo commands           |                                                      |
+| Add country/connection type selection support  |                                                      |
+| Add autostart option in extension settings     |                                                      |
+| Add GUI for changing linux-cli client settings |                                                      |
 
 ### Compatibility
 
