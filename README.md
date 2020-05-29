@@ -48,6 +48,8 @@ This extension offers a drop-down item in the user menu which will simply allow 
 |:-----|:-----:|
 |Add notification to indicate connection status|<img src="assets/done.png" alt="Done" width="24px"/>|
 |Change VPN notification icon to ProtonVPN mark|<img src="assets/done.png" alt="Done" width="24px"/>|
+|Add country/connection type selection support||
+|Add autostart option in extension settings||
 |Offer GUI for changing ProtonVPN linux-cli client settings||
 
 ### Compatibility
