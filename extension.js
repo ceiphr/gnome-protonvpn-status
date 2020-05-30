@@ -159,7 +159,7 @@ class ProtonVPN {
 	}
 
 	/**
-	 * Call the linux-cli client to connect to get the status of the VPN connection.
+	 * Call the linux-cli client to get the status of the VPN connection.
 	 * Either the current status from the linux-cli client is returned or "Waiting" is returned.
 	 *
 	 * "Waiting" means the client gave an unexpected response, so we'll wait until the next _refresh()
@@ -202,8 +202,8 @@ const VPNStatusIndicator = GObject.registerClass(
 		/**
 		 * Initialize the extension.
 		 *
-		 * Creates the indicator (the VPN icon in the status bar). Creates the menu
-		 * item that allows you to connect/disconnect from ProtonVPN. Adds these two new
+		 * Create the indicator (the VPN icon in the status bar). Create the menu
+		 * item that allows you to connect/disconnect from ProtonVPN. Add these two new
 		 * elements to GNOME's user interface.
 		 */
 		_init() {
@@ -235,7 +235,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Starts the extension's _refresh loop for
+		 * Start the extension's _refresh loop for
 		 * checking the VPN connection status.
 		 */
 		enable() {
@@ -294,7 +294,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Updates the user interface elements we've created in _init()
+		 * Update the user interface elements we've created in _init()
 		 * based on the vpnStatus string.
 		 *
 		 * @param {String} vpnStatus		Current status of your ProtonVPN connection
@@ -337,9 +337,9 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Removes the extension's _refresh loop. Removes the indicator from
-		 * the status bar. Destroys all elements created in _init() and
-		 * sets them to null.
+		 * Remove the extension's _refresh loop. Remove the indicator from
+		 * the status bar. Destroy all elements created in _init() and
+		 * set them to null.
 		 */
 		destroy() {
 			if (this._timeout) Mainloop.source_remove(this._timeout);
