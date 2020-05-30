@@ -1,7 +1,7 @@
 /**
  * A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE.
  *
- * Written in JavaScript. This extension requires GJS, GLib, Gio and all other imported 
+ * Written in JavaScript. This extension requires GJS, GLib, Gio and all other imports 
  * listed below to function properly.
  *
  * @link   https://github.com/ceiphr/gse-protonvpn-status
