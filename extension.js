@@ -128,7 +128,7 @@ class ProtonVPN {
 			vpnStatusIndicator.update("Connecting");
 			notify("ProtonVPN", "Connecting...");
 		} else {
-			logError(new Error(`Invalid result of ProtonVPN connect: ${e}`));
+			logError(new Error("Invalid result of ProtonVPN connect."));
 			errorNotify(
 				"ProtonVPN Status Extension",
 				"Unknown ProtonVPN response. \nIs ProtonVPN installed? Can \
@@ -148,7 +148,7 @@ class ProtonVPN {
 			vpnStatusIndicator.update("Disconnecting");
 			notify("ProtonVPN", "Disconnecting...");
 		} else {
-			logError(new Error(`Invalid result of ProtonVPN disconnect: ${e}`));
+			logError(new Error("Invalid result of ProtonVPN disconnect."));
 			errorNotify(
 				"ProtonVPN Status Extension",
 				"Unknown ProtonVPN response. \nIs ProtonVPN installed? Can \
@@ -273,7 +273,7 @@ const VPNStatusIndicator = GObject.registerClass(
 		}
 
 		/**
-		 * Call the linux-cli client to connect to get the status of the VPN connection.
+		 * Call the linux-cli client to get the status of the VPN connection.
 		 * Refreshes every 20 seconds to update the status information.
 		 *
 		 * @private
