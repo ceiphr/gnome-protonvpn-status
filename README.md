@@ -12,7 +12,7 @@ A GNOME extension for controlling and monitoring your ProtonVPN connection throu
 
 [**You need to follow this official guide by the ProtonVPN team to allow this extension to handle the ProtonVPN linux-cli client without superuser privileges.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
-The ProtonVPN team has implemented the ability to use `pkexec` in newer releases of the linux-cli client. Once that feature is put into production, you will no longer need to follow this guide. The extension will instead ask for your superuser password and handle the linux-cli client with `sudo`. But, for now this guide is the only practical way to have this extension communicate with the linux-cli client.
+The ProtonVPN team has implemented the ability to use `pkexec` in version 2.2.3 of the linux-cli client. Using `pkexec` makes this guide unnecessary since it will handle the use of `sudo` on behalf of this extension. Version 5 of this extension will allow you to switch between using `pkexec` and `sudo` (through this guide).
 
 ## How to Install This Extension
 
