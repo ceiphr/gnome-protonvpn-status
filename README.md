@@ -1,12 +1,22 @@
-<p align="center">
-  <img src="assets/readme-banner.png">
-</p>
+<h1 align="center">
+  <img width="500px" src="assets/readme-banner.png">
+  
+  ![Gnome version][gv] ![GitHub top language][gtl] ![License][l]
+</h1>
 
-# Unofficial ProtonVPN Status
+[gv]: https://img.shields.io/badge/gnome-3.36-blue?logo=gnome&logoColor=white
+[gtl]: https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status
+[l]: https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status
 
-![Gnome version](https://img.shields.io/badge/gnome-3.36-blue?logo=gnome&logoColor=white) ![GitHub top language](https://img.shields.io/github/languages/top/ceiphr/gnome-protonvpn-status) ![License](https://img.shields.io/github/license/ceiphr/gnome-protonvpn-status)
+<h5 align="center"> A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE. </h5>
 
-A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE.
+## What This Extension Offers
+
+If you want to interact with ProtonVPN the same way GNOME's network-manager handles OpenVPN, this is the extension for you.
+
+![screenshot preview](assets/preview.png)
+
+This extension offers a drop-down item in the user menu which will simply allow you to connect/disconnect from ProtonVPN. You will be notified when the extension starts connecting or disconnecting using the ProtonVPN linux-cli client.
 
 ## **IMPORTANT FOR THIS EXTENSION TO WORK**
 
@@ -36,20 +46,13 @@ Or if you want the latest version that is not on GNOME Extensions, you can insta
 git clone git@github.com:ceiphr/gse-protonvpn-status.git /home/$USER/.local/share/gnome-shell/extensions/protonvpn-status@ceiphr.com
 ```
 
-## What This Extension Offers
-
-If you want to interact with ProtonVPN the same way GNOME's network-manager handles OpenVPN, this is the extension for you.
-
-![screenshot preview](assets/preview.png)
-
-This extension offers a drop-down item in the user menu which will simply allow you to connect/disconnect from ProtonVPN. You will be notified when the extension starts connecting or disconnecting using the ProtonVPN linux-cli client.
-
 ### Planned Features
 
-<!-- 
+<!--
 Some suggestions are from here:
-https://www.reddit.com/r/gnome/comments/gshaj5/a_gnome_extension_for_handling_the_protonvpn_cli/fs71jfo?utm_source=share&utm_medium=web2x 
+https://www.reddit.com/r/gnome/comments/gshaj5/a_gnome_extension_for_handling_the_protonvpn_cli/fs71jfo?utm_source=share&utm_medium=web2x
 -->
+
 | Planned Features                               |                 Feature Implemented                  |
 | :--------------------------------------------- | :--------------------------------------------------: |
 | Add notification to indicate connection status | <img src="assets/done.png" alt="Done" width="24px"/> |
@@ -67,7 +70,7 @@ This extension has been tested with GNOME 3.36.
 
 This extension is developed and maintained by [@ceiphr](https://github.com/ceiphr).
 
-Significant portion of code in this extension were derived from [@bajcmartinez](https://github.com/bajcmartinez)'s [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
+Significant portions of code in this extension were derived from [@bajcmartinez](https://github.com/bajcmartinez)'s [NordVPN-Status](https://github.com/bajcmartinez/nordvpn-status).
 
 The ProtonVPN logo and mark are both registered trademarks of Proton Technologies AG.
 

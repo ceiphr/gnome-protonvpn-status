@@ -18,7 +18,7 @@ const AggregateMenu 								= main.panel.statusArea.aggregateMenu;
 let vpnStatusIndicator;
 
 /**
- * Andy Holmes recommended using a Gio.Subprocess for handling commands
+ * u/ndhlms recommended using a Gio.Subprocess for handling commands
  * and getting the command result without halting GNOME's main thread.
  *
  * https://andyholmes.github.io/articles/subprocesses-in-gjs.html
