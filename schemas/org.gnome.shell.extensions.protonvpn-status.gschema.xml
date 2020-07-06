@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schemalist>
+  <schema id="org.gnome.shell.extensions.protonvpn-status"
+    path="/org/gnome/shell/extensions/protonvpn-status/">
+
+    <key type="i" name="status-refresh-rate">
+      <default>20</default>
+      <summary>Status refresh rate</summary>
+      <description>
+        Change how long it takes for this extension to update the VPN status.
+      </description>
+    </key>
+
+    <key type="b" name="auto-start-on-login">
+      <default>false</default>
+      <summary>Auto start on login</summary>
+      <description>
+        When this extension first runs on boot, it will issue a connect
+        command to ProtonVPN.
+      </description>
+    </key>
+
+    <key type="b" name="use-pkexec">
+      <default>true</default>
+      <summary>Use pkexec or sudo</summary>
+      <description>
+        ProtonVPN requires superuser privilages to issue connect/disconnect
+        commands. pkexec will ask for your password whenever you
+        try to connect/disconnect and doesn't require configuration.
+        sudo will require you to disable the sudo query for the protonvpn
+        command and will never need to ask for your password.
+      </description>
+    </key>
+  </schema>
+</schemalist>
