@@ -1,48 +1,90 @@
-const GObject = imports.gi.GObject;
+'use strict';
+
+const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
 
-function init() {}
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
-function buildPrefsWidget() {
-	let widget = new MyPrefsWidget();
-	widget.show_all();
-	return widget;
+
+function init() {
 }
 
-const MyPrefsWidget = new GObject.Class({
-	Name: "My.Prefs.Widget",
-	GTypeName: "MyPrefsWidget",
-	Extends: Gtk.Box,
+function buildPrefsWidget() {
 
-	_init: function (params) {
-		this.parent(params);
-		this.margin = 20;
-		this.set_spacing(15);
-		this.set_orientation(Gtk.Orientation.VERTICAL);
+    // Copy the same GSettings code from `extension.js`
+    let gschema = Gio.SettingsSchemaSource.new_from_directory(
+        Me.dir.get_child('schemas').get_path(),
+        Gio.SettingsSchemaSource.get_default(),
+        false
+    );
 
-		// make sure the main window quit when the wrapper box will be destroyed
-		this.connect("destroy", Gtk.main_quit);
+    this.settings = new Gio.Settings({
+        settings_schema: gschema.lookup('org.gnome.shell.extensions.protonvpn-status', true)
+    });
 
-		let myLabel = new Gtk.Label({
-			label: "Translated Text",
-		});
+    // Create a parent widget that we'll return from this function
+    let prefsWidget = new Gtk.Grid({
+        margin: 18,
+        column_spacing: 12,
+        row_spacing: 12,
+        visible: true
+    });
 
-		let spinButton = new Gtk.SpinButton();
-		spinButton.set_sensitive(true);
-		spinButton.set_range(-60, 60);
-		spinButton.set_value(0);
-		spinButton.set_increments(1, 2);
+    // Add a simple title and add it to the prefsWidget
+    let title = new Gtk.Label({
+        // As described in "Extension Translations", the following template
+        // lit
+        // prefs.js:88: warning: RegExp literal terminated too early
+        //label: `<b>${Me.metadata.name} Extension Preferences</b>`,
+        label: '<b>' + Me.metadata.name + ' Extension Preferences</b>',
+        halign: Gtk.Align.START,
+        use_markup: true,
+        visible: true
+    });
+    prefsWidget.attach(title, 0, 0, 2, 1);
 
-		spinButton.connect("value-changed", function (w) {
-			log(w.get_value_as_int());
-		});
+    // Create a label to describe our button and add it to the prefsWidget
+    let buttonLabel = new Gtk.Label({
+        label: 'Reset Panel Items:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    prefsWidget.attach(buttonLabel, 0, 1, 1, 1);
 
-		let hBox = new Gtk.Box();
-		hBox.set_orientation(Gtk.Orientation.HORIZONTAL);
+    // Create a 'Reset' button and add it to the prefsWidget
+    let button = new Gtk.Button({
+        label: 'Reset Panel',
+        visible: true
+    });
+    prefsWidget.attach(button, 1, 1, 1, 1);
 
-		hBox.pack_start(myLabel, false, false, 0);
-		hBox.pack_end(spinButton, false, false, 0);
+    // Connect the ::clicked signal to reset the stored settings
+    button.connect('clicked', (button) => this.settings.reset('panel-states'));
 
-		this.add(hBox);
-	},
-});
+    // Create a label & switch for `show-indicator`
+    let toggleLabel = new Gtk.Label({
+        label: 'Start ProtonVPN on boot:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    prefsWidget.attach(toggleLabel, 0, 2, 1, 1);
+
+    let auto_start_on_login = new Gtk.Switch({
+        active: this.settings.get_boolean ('auto-start-on-login'),
+        halign: Gtk.Align.END,
+        visible: true
+    });
+    prefsWidget.attach(auto_start_on_login, 1, 2, 1, 1);
+
+    // Bind the switch to the `show-indicator` key
+    this.settings.bind(
+        'auto-start-on-login',
+        auto_start_on_login,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
+    // Return our widget which will be added to the window
+    return prefsWidget;
+}

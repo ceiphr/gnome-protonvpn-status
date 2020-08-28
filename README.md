@@ -18,14 +18,6 @@ If you want to interact with ProtonVPN the same way GNOME's network-manager hand
 
 This extension offers a drop-down item in the user menu which will simply allow you to connect/disconnect from ProtonVPN. You will be notified when the extension starts connecting or disconnecting using the ProtonVPN linux-cli client.
 
-## **IMPORTANT FOR THIS EXTENSION TO WORK**
-
-[**You need to follow this official guide by the ProtonVPN team to allow this extension to handle the ProtonVPN linux-cli client without superuser privileges.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
-
-The ProtonVPN team has implemented the ability to use `pkexec` in version 2.2.3 of the linux-cli client.
-
-Using `pkexec` makes this guide unnecessary since it will handle the use of `sudo` on behalf of this extension. Version 5 of this extension will allow you to switch between using `pkexec` and `sudo`.
-
 ## How to Install This Extension
 
 This extension uses the ProtonVPN linux-cli tool. You will need to install it before using this extension. Please follow ProtonVPN's installation guide for your current distribution:

@@ -28,8 +28,8 @@
         ProtonVPN requires superuser privilages to issue connect/disconnect
         commands. pkexec will ask for your password whenever you
         try to connect/disconnect and doesn't require configuration.
-        sudo will require you to disable the sudo query for the protonvpn
-        command and will never need to ask for your password.
+        sudo will require you to disable the sudo query for the protonvpn-cli tool 
+        and will never need to ask for your password.
       </description>
     </key>
   </schema>

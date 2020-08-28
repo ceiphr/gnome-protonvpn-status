@@ -1,19 +1,19 @@
 /**
- * A GNOME extension for controlling and monitoring your ProtonVPN connection through the GNOME DE.
+ * A GNOME extension for controlling and monitoring your ProtonVPN connection.
  *
- * Written in JavaScript. This extension requires GJS, GLib, Gio and all other imports 
+ * Written in JavaScript. This extension requires GJS, GLib, Gio and all other imports
  * listed below to function properly.
  *
  * @link   https://github.com/ceiphr/gse-protonvpn-status
  * @author Ari Birnbaum (ceiphr).
  */
 
-const { St, Clutter, Gio, GLib, GObject } 			= imports.gi;
-const { panelMenu, popupMenu, main, messageTray } 	= imports.ui;
-const Lang 											= imports.lang;
-const Mainloop 										= imports.mainloop;
-const Extension 									= imports.misc.extensionUtils.getCurrentExtension();
-const AggregateMenu 								= main.panel.statusArea.aggregateMenu;
+const { St, Clutter, Gio, GLib, GObject } = imports.gi;
+const { panelMenu, popupMenu, main, messageTray } = imports.ui;
+const Lang = imports.lang;
+const Mainloop = imports.mainloop;
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const AggregateMenu = main.panel.statusArea.aggregateMenu;
 
 let vpnStatusIndicator;
 
@@ -58,6 +58,29 @@ function execCommunicate(argv, input = null, cancellable = null) {
 			}
 		});
 	});
+}
+
+/**
+ * Get Settings
+ * https://youtu.be/OM_Wli15oCc
+ */
+function getSettings() {
+	let GioSSS = Gio.SettingsSchemaSource;
+	let schemaSource = GioSSS.new_from_directory(
+		Extension.dir.get_child("schemas").get_path(),
+		GioSSS.get_default(),
+		false
+	);
+	let schemaObj = schemaSource.lookup(
+		"org.gnome.shell.extensions.protonvpn-status",
+		true
+	);
+
+	if (!schemaObj) {
+		throw new Error("ProtonVPN Status can't find schemas.");
+	}
+
+	return new Gio.Settings({ settings_schema: schemaObj });
 }
 
 /**
@@ -169,7 +192,7 @@ class ProtonVPN {
 	 */
 	getStatus() {
 		// status checking command is "protonvpn status," sudo isn't required
-		let argv = ["protonvpn", "status"]; 
+		let argv = ["protonvpn", "status"];
 
 		execCommunicate(argv)
 			.then((result) => {
@@ -208,6 +231,8 @@ const VPNStatusIndicator = GObject.registerClass(
 		 */
 		_init() {
 			super._init();
+
+			this.settings = getSettings();
 
 			// Add the indicator to the indicator bar
 			this._indicator = this._addIndicator();
@@ -288,7 +313,7 @@ const VPNStatusIndicator = GObject.registerClass(
 
 			// the refresh function will be called every 20 sec.
 			this._timeout = Mainloop.timeout_add_seconds(
-				20,
+				this.settings.get_int("status-refresh-rate"),
 				Lang.bind(this, this._refresh)
 			);
 		}
