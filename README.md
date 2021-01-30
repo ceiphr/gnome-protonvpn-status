@@ -14,6 +14,14 @@
 
 [**You need to follow this official guide by the ProtonVPN team to allow this extension to handle the ProtonVPN linux-cli client without superuser privileges.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
+## 2021-1-29 Announcement
+
+I'm happy to see the new `protonvpn-cli` client offers GNOME integration which makes some functionality of this extension redundant. I intend to revise this extension to complement the new client (e.g., adding server selection, GUI settings, start on boot, etc.) in the next few weeks.
+
+For the time being, if you are using the new protonvpn-cli client, I recommend disabling this extension until the next release. Otherwise, GNOME's aggregate menu will display redundant VPN status information.
+
+---
+
 The ProtonVPN team has implemented the ability to use `pkexec` in version 2.2.3 of the linux-cli client.
 
 Using `pkexec` makes this guide unnecessary since it will handle the use of `sudo` on behalf of this extension. **Version 5 of this extension will allow you to switch between using `pkexec` and `sudo`. For now, you must follow the guide for the extension to work.**
