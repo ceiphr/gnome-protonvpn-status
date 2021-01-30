@@ -18,7 +18,7 @@
 
 I'm happy to see the new `protonvpn-cli` client offers GNOME integration which makes some functionality of this extension redundant. I intend to revise this extension to complement the new client (e.g., adding server selection, GUI settings, start on boot, etc.) in the next few weeks.
 
-For the time being, if you are using the new `protonvpn-cli client`, I recommend disabling this extension until the next release. Otherwise, GNOME's aggregate menu will display redundant VPN status information.
+For the time being, if you are using the new `protonvpn-cli` client, I recommend disabling this extension until the next release. Otherwise, GNOME's aggregate menu will display redundant VPN status information.
 
 ---
 
