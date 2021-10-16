@@ -196,4 +196,6 @@ fabric.properties
 .idea/**/markdown-navigator.xml
 .idea/**/markdown-navigator/
 
+.dccache
+
 # End of https://www.gitignore.io/api/node,webstorm
