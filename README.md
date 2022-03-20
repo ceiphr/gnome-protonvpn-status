@@ -14,11 +14,11 @@
 
 [**You need to follow this official guide by the ProtonVPN team to allow this extension to handle the ProtonVPN linux-cli client without superuser privileges.**](https://github.com/ProtonVPN/linux-cli/blob/master/USAGE.md#disable-sudo-password-query)
 
-## 2021-1-29 Announcement
+## 2022-3-20 Announcement
 
-I'm happy to see the new `protonvpn-cli` client offers GNOME integration which makes some functionality of this extension redundant. I intend to revise this extension to complement the new client (e.g., adding server selection, GUI settings, start on boot, etc.) in the next few weeks.
+Over the past two year, I've set out to updating this project eight different times. Every time, I find myself giving up because it's time-consuming and inconvenient. I love this project and the fantastic GNOME community. I feel like I have a home here. But, extension development is challenging and there are more fun things to work on. That's why I'm archiving this repository. At some point, I'd like to make a Rust/GTK ProtonVPN client to replace this, but I'm not sure when I'd have the time for it.
 
-For the time being, if you are using the new `protonvpn-cli` client, I recommend disabling this extension until the next release. Otherwise, GNOME's aggregate menu will display redundant VPN status information.
+For now, all I can say is thank you so much for your support in this project! I absolutely intend to continue contributing to GNOME in any way I can. ~Ari
 
 ---
 
